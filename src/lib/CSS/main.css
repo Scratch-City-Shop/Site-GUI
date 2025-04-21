@@ -1,0 +1,28 @@
+:root {
+  --orange-light: #ffa726;
+  --orange-dark: #f57c00;
+  --white: #ffffff;
+  --smoke: rgba(255, 255, 255, 0.1);
+  --shadow: rgba(245, 124, 0, 0.5);
+  --gradient-fire: linear-gradient(135deg, #fff1e0, #ffa726, #f57c00);
+  --border-radius: 12px;
+  --transition: 0.3s ease-in-out;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--white);
+  color: var(--orange-dark);
+  line-height: 1.6;
+  background: var(--gradient-fire);
+  background-size: 400% 400%;
+  animation: fireFlow 10s ease infinite;
+}
+
+@keyframes fireFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
