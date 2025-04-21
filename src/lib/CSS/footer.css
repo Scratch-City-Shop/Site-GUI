@@ -1,0 +1,38 @@
+footer {
+  background: var(--orange-light);
+  color: var(--white);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 -4px 12px var(--shadow);
+  font-size: 0.9rem;
+}
+
+footer a {
+  color: var(--white);
+  text-decoration: none;
+  margin: 0 0.5rem;
+  transition: var(--transition);
+}
+
+footer a:hover {
+  color: var(--orange-dark);
+  text-shadow: 0 0 6px var(--orange-dark);
+}
+
+footer .social-icons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+footer .social-icons i {
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+footer .social-icons i:hover {
+  transform: scale(1.2);
+  color: var(--orange-dark);
+}
