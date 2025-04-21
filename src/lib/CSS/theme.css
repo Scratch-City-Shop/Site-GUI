@@ -1,0 +1,39 @@
+/* Firey theme overrides and extras */
+
+body.fire-theme {
+  background: radial-gradient(circle at top left, #fff8f0, #ffe0b2, #f57c00);
+  color: #4e2c00;
+}
+
+.button.fire {
+  background: linear-gradient(135deg, #fff1e0, #ffa726, #f57c00);
+  color: var(--white);
+  box-shadow: 0 0 12px var(--orange-dark);
+}
+
+.card.fire {
+  background: linear-gradient(180deg, #ffffff, #ffe0b2);
+  border: 1px solid #ffa726;
+}
+
+.header-fire {
+  background: linear-gradient(to right, #f57c00, #ffa726);
+  color: var(--white);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.glow-text {
+  color: var(--orange-dark);
+  text-shadow: 0 0 8px var(--orange-light), 0 0 16px var(--orange-dark);
+}
+
+.fire-border {
+  border: 2px solid var(--orange-light);
+  box-shadow: 0 0 8px var(--orange-dark);
+}
+
+.fire-gradient-bg {
+  background: var(--gradient-fire);
+  background-size: 300% 300%;
+  animation: fireFlow 12s ease infinite;
+}
