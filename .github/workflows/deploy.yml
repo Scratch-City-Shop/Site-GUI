@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Or your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build and copy static files
+      run: |
+        # Create the static directory if it doesn't exist
+        mkdir -p src/static/lib/CSS
+        # Copy CSS from src/lib/CSS to static/lib/CSS
+        cp -r src/lib/CSS/* src/static/lib/CSS/
+
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages  # The branch the action will deploy to
+        folder: src/static  # The folder to deploy
+        token: ${{ secrets.GITHUB_TOKEN }}
