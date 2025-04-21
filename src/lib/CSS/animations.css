@@ -1,0 +1,41 @@
+@keyframes fireGlow {
+  0% {
+    box-shadow: 0 0 5px var(--orange-light);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--orange-dark), 0 0 40px var(--orange-light);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--orange-light);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-glow {
+  animation: fireGlow 2s infinite ease-in-out;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
