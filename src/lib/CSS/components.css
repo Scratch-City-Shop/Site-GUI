@@ -1,0 +1,39 @@
+.button {
+  padding: 0.75rem 1.5rem;
+  background: var(--gradient-fire);
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--white);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px var(--shadow);
+  transition: var(--transition);
+}
+
+.button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px var(--shadow);
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 20px var(--shadow);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 25px var(--shadow);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--orange-dark);
+  color: var(--white);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
