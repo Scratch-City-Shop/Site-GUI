@@ -1,299 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Scratch City Shop</title>
-    <link rel="stylesheet" href="lib/CSS/main.css">
-    <link rel="stylesheet" href="lib/CSS/layout.css">
-    <link rel="stylesheet" href="lib/CSS/components.css">
-    <link rel="stylesheet" href="lib/CSS/header.css">
-    <link rel="stylesheet" href="lib/CSS/footer.css">
-    <link rel="stylesheet" href="lib/CSS/forms.css">
-    <link rel="stylesheet" href="lib/CSS/animations.css">
-    <link rel="stylesheet" href="lib/CSS/typography.css">
-    <link rel="stylesheet" href="lib/CSS/utilities.css">
-    <link rel="stylesheet" href="lib/CSS/theme.css">
+<script>
+    const BIN_ID = '6807514b8561e97a5004df40';
+    const API_KEY = '$2a$10$QRCp0YqAthr0rWKw2Pe9yedKLpIZqV2lmH4rpl6v2XDCUYjDgn2qi';
 
-    <style>
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
+    let currentCardId = null;
+
+    // Check if the user is logged in (based on localStorage)
+    function isLoggedIn() {
+        return localStorage.getItem('scratch_username') !== null;
+    }
+
+    // Open modal to create a new card
+    function openCreateCardModal() {
+        if (!isLoggedIn()) {
+            document.getElementById('login-warning').style.display = 'block';
+            return;
         }
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+        currentCardId = null;
+        document.getElementById('modal-title').innerText = 'Create New Card';
+        document.getElementById('edit-card-title').value = '';
+        document.getElementById('edit-card-text').value = '';
+        document.getElementById('editModal').style.display = "block";
+    }
 
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .modal input, .modal textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .card button {
-            margin-top: 10px;
-        }
-
-        .login-warning {
-            color: red;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="logo">Scratch City Shop</div>
-        <nav>
-            <a href="/">Home</a>
-            <a href="about">About</a>
-            <a href="services">Services</a>
-            <a href="contact">Contact</a>
-        </nav>
-    </header>
-
-    <main>
-        <section class="section">
-            <h1>Welcome to the Scratch City Shop</h1>
-            <p>Here you can get anything from games to art!</p>
-            <div class="flex-center">
-                <button id="login" class="button" onclick="window.location.href='login'">Login</button>
-                <button class="button" onclick="window.location.href='blog'">Go to Blog</button>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2>Features</h2>
-            <div class="grid grid-3" id="cards-container">
-                <!-- Cards will be dynamically populated here -->
-            </div>
-        </section>
-
-        <section class="section">
-            <button id="create-card-btn" class="button" onclick="openCreateCardModal()" disabled>Create New Card</button>
-            <p id="login-warning" class="login-warning" style="display: none;">You need to be logged in to create a new card!</p>
-        </section>
-    </main>
-
-    <!-- Modal for editing/creating a card -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3 id="modal-title">Edit Card</h3>
-            <input type="text" id="edit-card-title" placeholder="Enter card title">
-            <textarea id="edit-card-text" rows="4" placeholder="Enter card description"></textarea>
-            <button onclick="saveCard()">Save</button>
-        </div>
-    </div>
-
-    <footer>
-        <p>Powered by CLIB. &copy; 2025</p>
-        <div class="social-icons">
-            <i class="fab fa-facebook"></i>
-            <i class="fab fa-twitter"></i>
-            <i class="fab fa-instagram"></i>
-        </div>
-    </footer>
-
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-    <script>
-        const BIN_ID = '6807514b8561e97a5004df40';
-        const API_KEY = '$2a$10$QRCp0YqAthr0rWKw2Pe9yedKLpIZqV2lmH4rpl6v2XDCUYjDgn2qi';
-
-        let currentCardId = null;
-
-        // Check if the user is logged in (based on localStorage)
-        function isLoggedIn() {
-            return localStorage.getItem('scratch_username') !== null;
-        }
-
-        // Open modal to create a new card
-        function openCreateCardModal() {
-            if (!isLoggedIn()) {
-                document.getElementById('login-warning').style.display = 'block';
-                return;
-            }
-
-            currentCardId = null;
-            document.getElementById('modal-title').innerText = 'Create New Card';
-            document.getElementById('edit-card-title').value = '';
-            document.getElementById('edit-card-text').value = '';
-            document.getElementById('editModal').style.display = "block";
-        }
-
-        // Open modal to edit existing card
-        function openEditModal(cardId) {
-            currentCardId = cardId;
-            const card = JSON.parse(localStorage.getItem('cards'))[`card${cardId}`];
+    // Open modal to edit existing card
+    function openEditModal(cardId) {
+        currentCardId = cardId;
+        fetchCardFromJsonBin(cardId).then(card => {
             document.getElementById('modal-title').innerText = 'Edit Card';
             document.getElementById('edit-card-title').value = card.title;
             document.getElementById('edit-card-text').value = card.text;
             document.getElementById('editModal').style.display = "block";
-        }
+        });
+    }
 
-        // Close the modal
-        document.querySelector('.close').onclick = function() {
+    // Close the modal
+    document.querySelector('.close').onclick = function() {
+        document.getElementById('editModal').style.display = "none";
+        document.getElementById('login-warning').style.display = 'none';
+    }
+
+    // Close the modal if user clicks outside of it
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('editModal')) {
             document.getElementById('editModal').style.display = "none";
             document.getElementById('login-warning').style.display = 'none';
         }
+    }
 
-        // Close the modal if user clicks outside of it
-        window.onclick = function(event) {
-            if (event.target === document.getElementById('editModal')) {
-                document.getElementById('editModal').style.display = "none";
-                document.getElementById('login-warning').style.display = 'none';
-            }
-        }
+    // Save the card after editing or creating
+    function saveCard() {
+        const title = document.getElementById('edit-card-title').value;
+        const text = document.getElementById('edit-card-text').value;
 
-        // Save the card after editing or creating
-        function saveCard() {
-            const title = document.getElementById('edit-card-title').value;
-            const text = document.getElementById('edit-card-text').value;
-
-            if (title && text) {
-                const cardData = JSON.parse(localStorage.getItem('cards')) || {};
-
-                if (currentCardId === null) {
-                    // Create new card if we are in "Create Card" mode
-                    const newCardId = Object.keys(cardData).length + 1;
-                    cardData[`card${newCardId}`] = { title, text };
-                } else {
-                    // Edit existing card
-                    cardData[`card${currentCardId}`] = { title, text };
-                }
-
-                // Save to localStorage
-                localStorage.setItem('cards', JSON.stringify(cardData));
-
-                // Also update the card on JSONBin
-                updateCardDataOnJsonBin(currentCardId, title, text);
-
-                // Update the card display
-                loadCards();
-
-                // Close the modal
-                document.getElementById('editModal').style.display = "none";
-            }
-        }
-
-        // Update card data on JSONBin
-        function updateCardDataOnJsonBin(cardId, title, text) {
-            const updatedData = {
-                [`card${cardId}`]: { title, text }
+        if (title && text) {
+            const cardData = {
+                title: title,
+                text: text
             };
 
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PATCH',
-                headers: {
-                    'X-Access-Key': API_KEY,  // Use your actual X-Access-Key here
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData)
-            })
-            .then(response => response.json())
-            .then(data => console.log('Data updated successfully:', data))
-            .catch(error => {
-                console.error('Error updating data:', error);
-                console.log('Failed to update card data. Please try again later.');
-            });
-        }
-
-        // Delete a card
-        function deleteCard(cardId) {
-            const cardData = JSON.parse(localStorage.getItem('cards'));
-            delete cardData[`card${cardId}`];
-
-            // Save the updated card data back to localStorage
-            localStorage.setItem('cards', JSON.stringify(cardData));
-
-            // Also delete the card from JSONBin
-            deleteCardFromJsonBin(cardId);
+            if (currentCardId === null) {
+                // Create new card
+                createCardOnJsonBin(cardData);
+            } else {
+                // Edit existing card
+                updateCardOnJsonBin(currentCardId, cardData);
+            }
 
             // Reload the cards
             loadCards();
+
+            // Close the modal
+            document.getElementById('editModal').style.display = "none";
         }
+    }
 
-        // Delete card from JSONBin
-        function deleteCardFromJsonBin(cardId) {
-            const updatedData = {
-                [`card${cardId}`]: null
-            };
+    // Create new card on JSONBin
+    function createCardOnJsonBin(cardData) {
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'POST',
+            headers: {
+                'X-Access-Key': API_KEY,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(cardData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Card created successfully:', data);
+        })
+        .catch(error => console.error('Error creating card:', error));
+    }
 
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PATCH',
-                headers: {
-                    'X-Access-Key': API_KEY,  // Use your actual X-Access-Key here
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData)
-            })
-            .then(response => response.json())
-            .then(data => console.log('Data deleted successfully:', data))
-            .catch(error => {
-                console.error('Error deleting data:', error);
-                console.log('Failed to delete card data. Please try again later.');
-            });
-        }
+    // Update card on JSONBin
+    function updateCardOnJsonBin(cardId, cardData) {
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/cards/${cardId}`, {
+            method: 'PATCH',
+            headers: {
+                'X-Access-Key': API_KEY,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(cardData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Card updated successfully:', data);
+        })
+        .catch(error => console.error('Error updating card:', error));
+    }
 
-        // Load card data from localStorage and display it
-        function loadCards() {
-            const cards = JSON.parse(localStorage.getItem('cards')) || {};
+    // Delete card from JSONBin
+    function deleteCard(cardId) {
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/cards/${cardId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Access-Key': API_KEY
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Card deleted successfully:', data);
+            loadCards();
+        })
+        .catch(error => console.error('Error deleting card:', error));
+    }
+
+    // Fetch all cards from JSONBin and load them
+    function loadCards() {
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/cards`, {
+            headers: {
+                'X-Access-Key': API_KEY
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const cards = data.cards || [];
             const container = document.getElementById('cards-container');
 
             // Clear existing cards
             container.innerHTML = '';
 
-            for (let i = 1; i <= 6; i++) {
-                if (!cards[`card${i}`]) continue;  // Skip empty cards
-
-                const card = cards[`card${i}`];
+            cards.forEach((card, index) => {
                 const cardElement = document.createElement('div');
                 cardElement.classList.add('card');
                 cardElement.innerHTML = `
-                    <h3 id="card${i}-title">${card.title}</h3>
-                    <p id="card${i}-text">${card.text}</p>
-                    <button onclick="openEditModal(${i})" class="edit-button">Edit</button>
-                    <button onclick="deleteCard(${i})" class="delete-button">Delete</button>
+                    <h3>${card.title}</h3>
+                    <p>${card.text}</p>
+                    <button onclick="openEditModal(${index})" class="edit-button">Edit</button>
+                    <button onclick="deleteCard(${index})" class="delete-button">Delete</button>
                 `;
                 container.appendChild(cardElement);
-            }
+            });
 
             // Disable "Create Card" button if 6 cards already exist
-            document.getElementById('create-card-btn').disabled = Object.keys(cards).length >= 6;
-        }
+            document.getElementById('create-card-btn').disabled = cards.length >= 6;
+        })
+        .catch(error => console.error('Error loading cards:', error));
+    }
 
-        // Fetch initial card data from JSONBin and load it
-        document.addEventListener('DOMContentLoaded', loadCards);
-    </script>
-</body>
-</html>
+    // Fetch initial card data from JSONBin and load it
+    document.addEventListener('DOMContentLoaded', loadCards);
+</script>
