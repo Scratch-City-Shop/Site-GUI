@@ -127,7 +127,7 @@
 
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script>
-        const BIN_ID = '68074e598960c979a58a71ff';
+        const BIN_ID = '6807514b8561e97a5004df40';
         const API_KEY = '$2a$10$QRCp0YqAthr0rWKw2Pe9yedKLpIZqV2lmH4rpl6v2XDCUYjDgn2qi';
 
         let currentCardId = null;
@@ -224,7 +224,7 @@
             .then(data => console.log('Data updated successfully:', data))
             .catch(error => {
                 console.error('Error updating data:', error);
-                alert('Failed to update card data. Please try again later.');
+                console.log('Failed to update card data. Please try again later.');
             });
         }
 
@@ -261,7 +261,7 @@
             .then(data => console.log('Data deleted successfully:', data))
             .catch(error => {
                 console.error('Error deleting data:', error);
-                alert('Failed to delete card data. Please try again later.');
+                console.log('Failed to delete card data. Please try again later.');
             });
         }
 
