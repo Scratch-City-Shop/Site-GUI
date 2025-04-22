@@ -60,8 +60,31 @@
             border-radius: 5px;
         }
 
-        .card button {
-            margin-top: 10px;
+        /* Button styles */
+        .edit-button, .delete-button {
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .edit-button {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            background-color: #f44336; /* Red */
+            color: white;
+        }
+
+        .delete-button:hover {
+            background-color: #e60000;
         }
 
         .login-warning {
@@ -127,9 +150,7 @@
 
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script>
-        const BIN_ID = '6807514b8561e97a5004df40';
-        const API_KEY = '$2a$10$QRCp0YqAthr0rWKw2Pe9yedKLpIZqV2lmH4rpl6v2XDCUYjDgn2qi';
-
+        const API_URL = "https://cityshop.hi1992.workers.dev";  // API URL for your backend
         let currentCardId = null;
 
         // Check if the user is logged in (based on localStorage)
@@ -154,11 +175,25 @@
         // Open modal to edit existing card
         function openEditModal(cardId) {
             currentCardId = cardId;
-            const card = JSON.parse(localStorage.getItem('cards'))[`card${cardId}`];
-            document.getElementById('modal-title').innerText = 'Edit Card';
-            document.getElementById('edit-card-title').value = card.title;
-            document.getElementById('edit-card-text').value = card.text;
-            document.getElementById('editModal').style.display = "block";
+
+            // Fetch the card data from the backend
+            fetch(`${API_URL}/cards/${cardId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Card not found');
+                    }
+                    return response.json();
+                })
+                .then(card => {
+                    document.getElementById('modal-title').innerText = 'Edit Card';
+                    document.getElementById('edit-card-title').value = card.title;
+                    document.getElementById('edit-card-text').value = card.text;
+                    document.getElementById('editModal').style.display = "block";
+                })
+                .catch(error => {
+                    console.error('Error fetching card:', error);
+                    alert('Card not found or error fetching data');
+                });
         }
 
         // Close the modal
@@ -181,118 +216,82 @@
             const text = document.getElementById('edit-card-text').value;
 
             if (title && text) {
-                const cardData = JSON.parse(localStorage.getItem('cards')) || {};
+                const cardData = { title, text };
 
                 if (currentCardId === null) {
                     // Create new card if we are in "Create Card" mode
-                    const newCardId = Object.keys(cardData).length + 1;
-                    cardData[`card${newCardId}`] = { title, text };
+                    fetch(`${API_URL}/cards`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(cardData)
+                    })
+                    .then(response => response.json())
+                    .then(() => {
+                        loadCards(); // Reload cards after creation
+                        document.getElementById('editModal').style.display = "none";
+                    })
+                    .catch(error => console.error('Error creating card:', error));
                 } else {
                     // Edit existing card
-                    cardData[`card${currentCardId}`] = { title, text };
+                    fetch(`${API_URL}/cards/${currentCardId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(cardData)
+                    })
+                    .then(response => response.json())
+                    .then(() => {
+                        loadCards(); // Reload cards after update
+                        document.getElementById('editModal').style.display = "none";
+                    })
+                    .catch(error => console.error('Error updating card:', error));
                 }
-
-                // Save to localStorage
-                localStorage.setItem('cards', JSON.stringify(cardData));
-
-                // Also update the card on JSONBin
-                updateCardDataOnJsonBin(currentCardId, title, text);
-
-                // Update the card display
-                loadCards();
-
-                // Close the modal
-                document.getElementById('editModal').style.display = "none";
             }
-        }
-
-        // Update card data on JSONBin
-        function updateCardDataOnJsonBin(cardId, title, text) {
-            const updatedData = {
-                [`card${cardId}`]: { title, text }
-            };
-
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PATCH',
-                headers: {
-                    'X-Access-Key': API_KEY,  // Use your actual X-Access-Key here
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData)
-            })
-            .then(response => response.json())
-            .then(data => console.log('Data updated successfully:', data))
-            .catch(error => {
-                console.error('Error updating data:', error);
-                console.log('Failed to update card data. Please try again later.');
-            });
         }
 
         // Delete a card
         function deleteCard(cardId) {
-            const cardData = JSON.parse(localStorage.getItem('cards'));
-            delete cardData[`card${cardId}`];
-
-            // Save the updated card data back to localStorage
-            localStorage.setItem('cards', JSON.stringify(cardData));
-
-            // Also delete the card from JSONBin
-            deleteCardFromJsonBin(cardId);
-
-            // Reload the cards
-            loadCards();
-        }
-
-        // Delete card from JSONBin
-        function deleteCardFromJsonBin(cardId) {
-            const updatedData = {
-                [`card${cardId}`]: null
-            };
-
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PATCH',
-                headers: {
-                    'X-Access-Key': API_KEY,  // Use your actual X-Access-Key here
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData)
+            fetch(`${API_URL}/cards/${cardId}`, {
+                method: 'DELETE',
             })
-            .then(response => response.json())
-            .then(data => console.log('Data deleted successfully:', data))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error deleting card');
+                }
+                loadCards(); // Reload cards after deletion
+            })
             .catch(error => {
-                console.error('Error deleting data:', error);
-                console.log('Failed to delete card data. Please try again later.');
+                console.error('Error deleting card:', error);
             });
         }
 
-        // Load card data from localStorage and display it
+        // Load cards from backend
         function loadCards() {
-            const cards = JSON.parse(localStorage.getItem('cards')) || {};
-            const container = document.getElementById('cards-container');
+            fetch(`${API_URL}/cards`)
+                .then(response => response.json())
+                .then(cards => {
+                    const container = document.getElementById('cards-container');
+                    container.innerHTML = ''; // Clear existing cards
 
-            // Clear existing cards
-            container.innerHTML = '';
-
-            for (let i = 1; i <= 6; i++) {
-                if (!cards[`card${i}`]) continue;  // Skip empty cards
-
-                const card = cards[`card${i}`];
-                const cardElement = document.createElement('div');
-                cardElement.classList.add('card');
-                cardElement.innerHTML = `
-                    <h3 id="card${i}-title">${card.title}</h3>
-                    <p id="card${i}-text">${card.text}</p>
-                    <button onclick="openEditModal(${i})" class="edit-button">Edit</button>
-                    <button onclick="deleteCard(${i})" class="delete-button">Delete</button>
-                `;
-                container.appendChild(cardElement);
-            }
-
-            // Disable "Create Card" button if 6 cards already exist
-            document.getElementById('create-card-btn').disabled = Object.keys(cards).length >= 6;
+                    cards.forEach(card => {
+                        const cardElement = document.createElement('div');
+                        cardElement.classList.add('card');
+                        cardElement.innerHTML = `
+                            <h3>${card.title}</h3>
+                            <p>${card.text}</p>
+                            <button class="edit-button" onclick="openEditModal(${card.id})">Edit</button>
+                            <button class="delete-button" onclick="deleteCard(${card.id})">Delete</button>
+                        `;
+                        container.appendChild(cardElement);
+                    });
+                })
+                .catch(error => console.error('Error loading cards:', error));
         }
 
-        // Fetch initial card data from JSONBin and load it
+        // Fetch and display cards on page load
         document.addEventListener('DOMContentLoaded', loadCards);
     </script>
 </body>
