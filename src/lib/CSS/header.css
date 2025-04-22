@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
+
 header {
   background: var(--orange-dark);
   color: var(--white);
@@ -9,9 +11,10 @@ header {
 }
 
 header .logo {
-  font-size: 1.75rem;
-  font-weight: bold;
-  letter-spacing: 1px;
+  font-family: "Comfortaa", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
 }
 
 nav {
